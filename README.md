@@ -2,7 +2,9 @@
 Kubernetes operator that can add!
 
 ## Description
-This operator defines Calculator CRD (view config/samples/calc_v1alpha1_calculator.yaml), adds x and y on CR apply and stores it in the result status as well as in secret with the name and namepsace from the CR.
+This operator defines Calculator CRD (view [the example](config/samples/calc_v1alpha1_calculator.yaml)
+or [the definition](config/crd/bases/calc.example.com_calculators.yaml)),
+adds x and y on CR apply and stores it in the result status as well as in secret with the name and namepsace from the CR.
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
