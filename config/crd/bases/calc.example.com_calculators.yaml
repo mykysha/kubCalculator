@@ -1,0 +1,67 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.10.0
+  creationTimestamp: null
+  name: calculators.calc.example.com
+spec:
+  group: calc.example.com
+  names:
+    kind: Calculator
+    listKind: CalculatorList
+    plural: calculators
+    singular: calculator
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Calculator is the Schema for the calculators API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CalculatorSpec defines the desired state of Calculator.
+            properties:
+              x:
+                description: X is the first addend.
+                maximum: 2147483647
+                minimum: -2147483648
+                type: integer
+              "y":
+                description: Y is the second addend.
+                maximum: 2147483647
+                minimum: -2147483648
+                type: integer
+            required:
+            - x
+            - "y"
+            type: object
+          status:
+            description: CalculatorStatus defines the observed state of Calculator.
+            properties:
+              processed:
+                description: Processed indicates whether the calculation has been
+                  performed.
+                type: boolean
+              result:
+                description: Result is the sum of X and Y.
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

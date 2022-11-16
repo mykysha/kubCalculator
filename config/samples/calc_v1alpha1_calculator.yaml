@@ -1,0 +1,8 @@
+apiVersion: calc.example.com/v1alpha1
+kind: Calculator
+metadata:
+  name: calculator-sample
+  namespace: default
+spec:
+  x: 123
+  "y": 123

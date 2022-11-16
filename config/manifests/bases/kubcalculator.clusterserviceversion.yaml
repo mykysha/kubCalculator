@@ -1,0 +1,44 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: kubcalculator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Calculator is the Schema for the calculators API
+      displayName: Calculator
+      kind: Calculator
+      name: calculators.calc.example.com
+      version: v1alpha1
+  description: kubernetes calculator operator
+  displayName: kubcalculator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - kubcalculator
+  links:
+  - name: Kubcalculator
+    url: https://kubcalculator.domain
+  maturity: alpha
+  provider:
+    name: mykysha
+  version: 0.0.0
