@@ -148,13 +148,15 @@ func (r *CalculatorReconciler) manageSecret(ctx context.Context, secret *corev1.
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *CalculatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *CalculatorReconciler) SetupWithManager(mgr ctrl.Manager, service service.Repository) error {
 	err := ctrl.NewControllerManagedBy(mgr).
 		For(&calcv1alpha1.Calculator{}).
 		Complete(r)
 	if err != nil {
 		return fmt.Errorf("failed to create controller: %w", err)
 	}
+
+	r.Service = service
 
 	return nil
 }

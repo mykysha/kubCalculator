@@ -20,7 +20,7 @@ import (
 
 var _ = Describe("Calculator controller", func() {
 	Context("Calculator controller test", func() {
-		const CalculatorName = "test-reconsiler"
+		const CalculatorName = "test-reconciler"
 
 		ctx := context.Background()
 
@@ -124,35 +124,26 @@ var _ = Describe("Calculator controller", func() {
 				Type:       "Opaque",
 			}, nil)
 
-			By("Reconciling the custom resource created")
 			memcachedReconciler := &CalculatorReconciler{
 				Client:  k8sClient,
 				Service: &repo,
 				Scheme:  k8sClient.Scheme(),
 			}
 
-			By("Create manager for reconsiler")
+			By("Create manager for reconciler")
 			mgr, err := ctrl.NewManager(cfg, ctrl.Options{
 				Scheme: k8sClient.Scheme(),
 			})
 			Expect(err).ToNot(HaveOccurred())
 
 			By("Setup reconciler with manager")
-			err = memcachedReconciler.SetupWithManager(mgr)
+			err = memcachedReconciler.SetupWithManager(mgr, &repo)
 			Expect(err).ToNot(HaveOccurred())
 
 			_, err = memcachedReconciler.Reconcile(ctx, reconcile.Request{
 				NamespacedName: typeNamespaceName,
 			})
 			Expect(err).To(Not(HaveOccurred()))
-
-			/*
-				By("Checking if Deployment was successfully created in the reconciliation")
-				Eventually(func() error {
-					found := &appsv1.Deployment{}
-					return k8sClient.Get(ctx, typeNamespaceName, found)
-				}, time.Minute, time.Second).Should(Succeed())
-			*/
 
 			By("Checking if the latest Status processed is true, result is x+y and is added to the Calculator instance")
 			calculator = &calcv1alpha1.Calculator{}

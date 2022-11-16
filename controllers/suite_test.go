@@ -17,7 +17,6 @@ limitations under the License.
 package controllers
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -58,13 +57,8 @@ var _ = BeforeSuite(func() {
 		ErrorIfCRDPathMissing: true,
 	}
 
-	err := os.Setenv("TEST_ASSET_ETCD", "../bin/k8s/1.25.0-darwin-amd64/etcd")
-	Expect(err).NotTo(HaveOccurred())
-
-	err = os.Setenv("TEST_ASSET_KUBE_APISERVER", "../bin/k8s/1.25.0-darwin-amd64/kube-apiserver")
-	Expect(err).NotTo(HaveOccurred())
-
 	// cfg is defined in this file globally.
+	var err error
 	cfg, err = testEnv.Start()
 	Expect(err).NotTo(HaveOccurred())
 	Expect(cfg).NotTo(BeNil())

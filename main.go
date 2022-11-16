@@ -20,11 +20,14 @@ import (
 	"flag"
 	"os"
 
+	"github.com/mykysha/kubCalculator/pkg/service"
+
 	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
 	"github.com/mykysha/kubCalculator/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -103,7 +106,7 @@ func main() {
 	if err = (&controllers.CalculatorReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+	}).SetupWithManager(mgr, &service.CalculatorService{}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Calculator")
 		os.Exit(1)
 	}
