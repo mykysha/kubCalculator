@@ -52,6 +52,10 @@ func (r *CalculatorReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	calc, err := r.getCalculator(ctx, req.Name, req.Namespace)
 	if err != nil {
+		if errors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+
 		return ctrl.Result{}, err
 	}
 
@@ -103,9 +107,9 @@ func (r *CalculatorReconciler) getCalculator(ctx context.Context, name string, n
 	return calc, nil
 }
 
-//+kubebuilder:rbac:groups=calc.example.com,resources=calculators,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=calc.example.com,resources=calculators/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=calc.example.com,resources=calculators/finalizers,verbs=update
+// +kubebuilder:rbac:groups=calc.example.com,resources=calculators,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=calc.example.com,resources=calculators/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=calc.example.com,resources=calculators/finalizers,verbs=update
 
 func (r *CalculatorReconciler) manageCalculator(ctx context.Context, calc *calcv1alpha1.Calculator) error {
 	logger := log.FromContext(ctx)
@@ -135,13 +139,15 @@ func (r *CalculatorReconciler) manageSecret(ctx context.Context, secret *corev1.
 		if err != nil {
 			return fmt.Errorf("failed to create secret: %w", err)
 		}
-	} else {
-		logger.Info(fmt.Sprintf("Target secret %s exists, updating it now", secret.Name))
 
-		err = r.Update(ctx, secret)
-		if err != nil {
-			return fmt.Errorf("failed to update secret: %w", err)
-		}
+		return nil
+	}
+
+	logger.Info(fmt.Sprintf("Target secret %s exists, updating it now", secret.Name))
+
+	err = r.Update(ctx, secret)
+	if err != nil {
+		return fmt.Errorf("failed to update secret: %w", err)
 	}
 
 	return nil
