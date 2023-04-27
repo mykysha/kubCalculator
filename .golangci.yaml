@@ -18,3 +18,20 @@ linters:
     - wastedassign
     - exhaustruct
     - gochecknoglobals
+    - wsl
+    - funlen
+    - testpackage
+    - gochecknoinits
+
+linters-settings:
+  gci:
+    sections:
+      - standard
+      - blank
+      - dot
+      - default
+      - prefix(github.com/mykysha/kubCalculator)
+
+    skip-generated: true
+
+    custom-order: true

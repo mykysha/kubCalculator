@@ -4,9 +4,10 @@ import (
 	"context"
 	"strconv"
 
-	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
 )
 
 type Repository interface {

@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
-	mocks "github.com/mykysha/kubCalculator/mocks/pkg/service"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"github.com/stretchr/testify/mock"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -16,6 +15,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
+	mocks "github.com/mykysha/kubCalculator/mocks/pkg/service"
 )
 
 var _ = Describe("Calculator controller", func() {
@@ -63,8 +65,6 @@ var _ = Describe("Calculator controller", func() {
 			calculator := &calcv1alpha1.Calculator{}
 			err := k8sClient.Get(ctx, typeNamespaceName, calculator)
 			if err != nil && errors.IsNotFound(err) {
-				// Let's mock our custom resource at the same way that we would
-				// apply on the cluster the manifest under config/samples
 				calculator := &calcv1alpha1.Calculator{
 					TypeMeta: metav1.TypeMeta{
 						Kind:       "Calculator",

@@ -20,21 +20,18 @@ import (
 	"flag"
 	"os"
 
-	"github.com/mykysha/kubCalculator/pkg/service"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
-	"github.com/mykysha/kubCalculator/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	//+kubebuilder:scaffold:imports
+
+	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
+	"github.com/mykysha/kubCalculator/controllers"
+	"github.com/mykysha/kubCalculator/pkg/service"
 )
 
 var (
@@ -49,18 +46,18 @@ func init() {
 	//+kubebuilder:scaffold:scheme
 }
 
+const (
+	defaultManagerPort = 9443
+	defaultMetricsAddr = ":8080"
+	defaultProbeAddr   = ":8081"
+)
+
 func main() {
 	var (
 		managerPort          int
 		metricsAddr          string
 		enableLeaderElection bool
 		probeAddr            string
-	)
-
-	var (
-		defaultManagerPort = 9443
-		defaultMetricsAddr = ":8080"
-		defaultProbeAddr   = ":8081"
 	)
 
 	flag.IntVar(&managerPort, "manager-port", defaultManagerPort, "The port the manager should bind to.")
@@ -86,17 +83,6 @@ func main() {
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "e7da643b.example.com",
-		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
-		// when the Manager ends. This requires the binary to immediately end when the
-		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
-		// speeds up voluntary leader transitions as the new leader don't have to wait
-		// LeaseDuration time first.
-		//
-		// In the default scaffold provided, the program ends immediately after
-		// the manager stops, so would be fine to enable this option. However,
-		// if you are doing or is intended to do any operation such as perform cleanups
-		// after the manager stops then its usage might be unsafe.
-		// LeaderElectionReleaseOnCancel: true,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")

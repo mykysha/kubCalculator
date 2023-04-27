@@ -4,10 +4,13 @@ import (
 	"context"
 	"testing"
 
-	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
-	"github.com/mykysha/kubCalculator/pkg/service"
+	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/pointer"
+
+	calcv1alpha1 "github.com/mykysha/kubCalculator/api/v1alpha1"
+	"github.com/mykysha/kubCalculator/pkg/service"
 )
 
 func TestProcessCalculator(t *testing.T) { //nolint:funlen // Test function
@@ -15,9 +18,9 @@ func TestProcessCalculator(t *testing.T) { //nolint:funlen // Test function
 
 	// Test table
 	tests := []struct {
-		name     string
-		calc     *calcv1alpha1.Calculator
-		expected *calcv1alpha1.Calculator
+		name string
+		calc *calcv1alpha1.Calculator
+		want *calcv1alpha1.Calculator
 	}{
 		{
 			name: "Max int32 x & y no status",
@@ -27,7 +30,7 @@ func TestProcessCalculator(t *testing.T) { //nolint:funlen // Test function
 					Y: 2147483647,
 				},
 			},
-			expected: &calcv1alpha1.Calculator{
+			want: &calcv1alpha1.Calculator{
 				Spec: calcv1alpha1.CalculatorSpec{
 					X: 2147483647,
 					Y: 2147483647,
@@ -50,7 +53,7 @@ func TestProcessCalculator(t *testing.T) { //nolint:funlen // Test function
 					Result:    0,
 				},
 			},
-			expected: &calcv1alpha1.Calculator{
+			want: &calcv1alpha1.Calculator{
 				Spec: calcv1alpha1.CalculatorSpec{
 					X: 1,
 					Y: 1,
@@ -73,7 +76,7 @@ func TestProcessCalculator(t *testing.T) { //nolint:funlen // Test function
 					Result:    2,
 				},
 			},
-			expected: &calcv1alpha1.Calculator{
+			want: &calcv1alpha1.Calculator{
 				Spec: calcv1alpha1.CalculatorSpec{
 					X: 1,
 					Y: 1,
@@ -88,36 +91,19 @@ func TestProcessCalculator(t *testing.T) { //nolint:funlen // Test function
 
 	// Run tests
 	for _, tt := range tests {
-		test := tt
+		tt := tt
 
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			s := &service.CalculatorService{}
 			ctx := context.Background()
 
 			// Process calculator
-			err := s.ProcessCalculator(ctx, test.calc)
-			if err != nil {
-				t.Fatalf("processCalculator() error = %v", err)
-			}
+			assert.NoError(t, s.ProcessCalculator(ctx, tt.calc))
 
 			// Check result
-			if test.calc.Status.Result != test.expected.Status.Result {
-				t.Errorf("processCalculator() got = %v, want %v", test.calc.Status.Result, test.expected.Status.Result)
-			}
-
-			if test.calc.Status.Processed != test.expected.Status.Processed {
-				t.Errorf("processCalculator() got = %v, want %v", test.calc.Status.Processed, test.expected.Status.Processed)
-			}
-
-			if test.calc.Spec.X != test.expected.Spec.X {
-				t.Errorf("processCalculator() got = %v, want %v", test.calc.Spec.X, test.expected.Spec.X)
-			}
-
-			if test.calc.Spec.Y != test.expected.Spec.Y {
-				t.Errorf("processCalculator() got = %v, want %v", test.calc.Spec.Y, test.expected.Spec.Y)
-			}
+			assert.Equal(t, tt.want, tt.calc)
 		})
 	}
 }
@@ -131,59 +117,49 @@ func TestDefineSecret(t *testing.T) { //nolint:funlen // Test function
 		result     int
 		secretName string
 		namespace  string
-		expected   *corev1.Secret
+		want       *corev1.Secret
 	}{
 		{
 			name:       "Define secret",
 			result:     2,
 			secretName: "test-secret",
 			namespace:  "non-default",
-			expected: &corev1.Secret{
+			want: &corev1.Secret{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Secret",
+					APIVersion: "v1",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:        "test-secret",
 					Namespace:   "non-default",
 					Annotations: map[string]string{"managed-by": "calc-operator"},
 				},
+				Immutable: pointer.Bool(false),
+				Data:      make(map[string][]uint8),
 				StringData: map[string]string{
 					"result": "2",
 				},
+				Type: "Opaque",
 			},
 		},
 	}
 
 	// Run tests
 	for _, tt := range tests {
-		test := tt
+		tt := tt
 
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			s := &service.CalculatorService{}
 			ctx := context.Background()
 
 			// Define secret
-			got, err := s.DefineSecret(ctx, test.secretName, test.namespace, test.result)
-			if err != nil {
-				t.Fatalf("defining secret error = %v", err)
-			}
+			got, err := s.DefineSecret(ctx, tt.secretName, tt.namespace, tt.result)
+			assert.NoError(t, err)
 
 			// Check result
-			if got.Name != test.expected.Name {
-				t.Errorf("secret name: got = %v, want = %v", got.Name, test.expected.Name)
-			}
-
-			if got.Namespace != test.expected.Namespace {
-				t.Errorf("secret namespace: got = %v, want = %v", got.Namespace, test.expected.Namespace)
-			}
-
-			if got.StringData["result"] != test.expected.StringData["result"] {
-				t.Errorf("secret result: got = %v, want = %v", got.Data["result"], test.expected.Data["result"])
-			}
-
-			if got.Annotations["managed-by"] != test.expected.Annotations["managed-by"] {
-				t.Errorf("secret annotations: got = %v, want = %v",
-					got.Annotations["managed-by"], test.expected.Annotations["managed-by"])
-			}
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
